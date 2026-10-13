@@ -31,4 +31,4 @@ npm run build
 
 ## GitHub 状态（2026-10-13）
 
-`nkloop/ustc-play` 已创建为公开仓库，现有 `main` 分支及完整项目已推送；原 Sites 内部 Git 远程保留为 `sites`。GitHub Actions 的依赖安装、类型检查和构建已经成功。首次 Pages 发布仍需仓库所有者在 Settings → Pages 选择 **GitHub Actions** 作为 Source；GitHub API 与工作流令牌均未获准自动启用 Pages。
+`nkloop/ustc-play` 已创建为公开仓库，现有 `main` 分支及完整项目已推送；原 Sites 内部 Git 远程保留为 `sites`。仓库所有者已在 Settings → Pages 选择 **GitHub Actions** 作为 Source。Actions 的依赖安装、类型检查、构建和发布均已成功。GitHub API 与工作流令牌此前未获准自动启用 Pages，因此首次设置需要仓库所有者完成。

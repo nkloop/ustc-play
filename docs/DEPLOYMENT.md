@@ -4,7 +4,7 @@
 
 1. `nkloop/ustc-play` 仓库已创建为公开仓库。
 2. `/workspace/sites/ustc-play` 的现有 `main` 分支已推送到该仓库。
-3. 待仓库所有者在仓库 Settings → Pages 中选择 **GitHub Actions** 作为发布源。
+3. 仓库所有者已在仓库 Settings → Pages 中选择 **GitHub Actions** 作为发布源。
 
 ## Vite base 要求
 
@@ -32,4 +32,4 @@ base: '/ustc-play/'
 
 ## 当前限制
 
-截至 2026-10-13，仓库和项目已上传。GitHub Actions 的 `npm ci`、`npm run check` 与构建均通过，但 `actions/configure-pages` 因仓库尚未启用 Pages 而失败；自动启用请求被 GitHub 拒绝（`Resource not accessible by integration`）。站点仍未部署，因此预期 Pages 地址不能称为实际可访问。此前 `chatgpt.site` 地址受到 Cloudflare 网络拦截，不能以构建环境 HTTP 200 代替用户网络可访问性验证。
+截至 2026-10-13，仓库和项目已上传；GitHub Actions 运行 `38364276290` 的 `npm ci`、`npm run check`、构建与部署均成功。站点地址为 `https://nkloop.github.io/ustc-play/`，从当前执行环境访问首页、JS 和 CSS 均返回 HTTP 200。用户所在地网络的访问仍需由用户浏览器确认。此前 `chatgpt.site` 地址受到 Cloudflare 网络拦截，不能以构建环境 HTTP 200 代替用户网络可访问性验证。
