@@ -4,7 +4,7 @@
 
 - Git 工作树：`/workspace/sites/ustc-play`
 - 分支：`main`
-- 最近提交：`42bc8d2 Initial USTC Play prototype`
+- GitHub 远程：`https://github.com/nkloop/ustc-play.git`（`origin`）
 - 前端：React 19、TypeScript、Vite 6、Tailwind CSS 4、Lucide React。
 
 `/workspace` 下还有一份同名源文件副本，但它不是 Git 仓库。后续 GitHub 提交、CI 与 Pages 配置都应以 `/workspace/sites/ustc-play` 为准，避免误传重复文件。
@@ -31,4 +31,4 @@ npm run build
 
 ## GitHub 状态（2026-10-13）
 
-已连接 GitHub 用户 `nkloop`，该账户的 GitHub App 安装对所有仓库可用，并确认已有仓库具备推送权限。项目当前尚未关联 GitHub：远程 `origin` 为内部 Git 服务，未发现名为 `ustc-play` 的可访问 GitHub 仓库。创建 `nkloop/ustc-play` 或取得现有仓库写权限后，才可安全推送。
+`nkloop/ustc-play` 已创建为公开仓库，现有 `main` 分支及完整项目已推送；原 Sites 内部 Git 远程保留为 `sites`。GitHub Actions 的依赖安装、类型检查和构建已经成功。首次 Pages 发布仍需仓库所有者在 Settings → Pages 选择 **GitHub Actions** 作为 Source；GitHub API 与工作流令牌均未获准自动启用 Pages。
