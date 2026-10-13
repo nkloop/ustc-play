@@ -1,0 +1,21 @@
+<view wx:if="{{court}}" class="screen">
+  <view class="hero art-{{court.color}}">
+    <view class="court-line"><view class="center-ring"></view></view>
+    <text>{{emoji}}</text>
+    <view class="hero-label">场地示意</view>
+  </view>
+  <view class="body">
+    <view class="sport-label">{{court.sport === 'basketball' ? '篮球' : '足球'}} · 球场信息</view>
+    <view class="title">{{court.name}}</view>
+    <view class="location">⌖　{{court.area}} · {{court.walk}}</view>
+    <view class="description">{{court.description}}</view>
+    <view class="tags"><view wx:for="{{court.facilities}}" wx:key="*this">{{item}}</view></view>
+
+    <view class="panel">
+      <view class="panel-top"><view class="panel-title">场地热度示意</view><view class="heat" style="color:{{heatColor}}">● {{heatLabel}}</view></view>
+      <view class="note">以下为内置模拟数据，不代表当前球场情况</view>
+      <view class="stats"><view><text>{{court.playing}}</text><view>人在打球</view></view><view><text>{{court.going}}</text><view>人准备去</view></view><view><text>{{court.reports}}</text><view>模拟上报</view></view></view>
+    </view>
+    <view class="disclaimer">独立制作的功能体验版，非学校官方服务。到场前请自行核实场地开放情况。</view>
+  </view>
+</view>

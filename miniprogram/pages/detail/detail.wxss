@@ -1,0 +1,24 @@
+.screen { min-height: 100vh; background: #f7f9fd; }
+.hero { position: relative; display: flex; align-items: center; justify-content: center; height: 360rpx; overflow: hidden; color: white; background: linear-gradient(145deg,#4294ad,#246879); }
+.hero.art-green { background: linear-gradient(145deg,#7bc599,#248772); }
+.hero.art-orange { background: linear-gradient(145deg,#e7a578,#b86463); }
+.hero text { position: relative; z-index: 1; font-size: 112rpx; }
+.court-line { position: absolute; width: 570rpx; height: 270rpx; border: 5rpx solid rgba(255,255,255,.65); transform: perspective(450rpx) rotateX(24deg); }
+.center-ring { position: absolute; left: 205rpx; top: 52rpx; width: 150rpx; height: 150rpx; border: 5rpx solid rgba(255,255,255,.65); border-radius: 50%; }
+.hero-label { position: absolute; right: 28rpx; bottom: 24rpx; padding: 8rpx 16rpx; border-radius: 20rpx; color: white; background: rgba(0,0,0,.24); font-size: 21rpx; }
+.body { position: relative; min-height: 70vh; margin-top: -26rpx; padding: 44rpx 32rpx 70rpx; border-radius: 32rpx 32rpx 0 0; background: #f7f9fd; }
+.sport-label { color: #3680ed; font-size: 22rpx; font-weight: 700; }
+.title { margin-top: 9rpx; color: #172844; font-size: 43rpx; font-weight: 800; }
+.location { margin-top: 15rpx; color: #78899e; font-size: 25rpx; }
+.description { margin-top: 26rpx; color: #53657c; font-size: 26rpx; line-height: 1.6; }
+.tags { display: flex; flex-wrap: wrap; gap: 12rpx; margin-top: 24rpx; }
+.tags view { padding: 10rpx 18rpx; border-radius: 16rpx; color: #667b95; background: #eaf0f7; font-size: 21rpx; }
+.panel { margin-top: 42rpx; padding: 28rpx; border: 1rpx solid #edf0f5; border-radius: 26rpx; background: white; box-shadow: 0 10rpx 30rpx rgba(25,64,115,.05); }
+.panel-top { display: flex; justify-content: space-between; align-items: center; }
+.panel-title { color: #1a2a43; font-size: 29rpx; font-weight: 750; }
+.heat { font-size: 24rpx; font-weight: 700; }
+.note { margin-top: 10rpx; color: #9aabba; font-size: 22rpx; }
+.stats { display: flex; justify-content: space-between; margin-top: 32rpx; padding-top: 28rpx; border-top: 1rpx solid #edf0f5; text-align: center; }
+.stats > view { flex: 1; color: #8191a4; font-size: 21rpx; }
+.stats text { display: block; margin-bottom: 5rpx; color: #2d77ee; font-size: 40rpx; font-weight: 800; }
+.disclaimer { margin-top: 30rpx; color: #9aa9ba; font-size: 22rpx; line-height: 1.6; }

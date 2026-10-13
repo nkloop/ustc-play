@@ -1,0 +1,8 @@
+{
+  "appid": "wx6877c93558f95532",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "projectname": "court-query-preview",
+  "setting": {"es6": true, "enhance": true, "minified": true},
+  "sitemapLocation": "sitemap.json"
+}

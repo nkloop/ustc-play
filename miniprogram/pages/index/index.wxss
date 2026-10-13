@@ -1,0 +1,35 @@
+.screen { padding: 42rpx 30rpx 70rpx; }
+.heading { margin: 10rpx 4rpx 32rpx; }
+.eyebrow { color: #2d76ef; font-size: 22rpx; font-weight: 700; letter-spacing: 5rpx; }
+.title { margin-top: 13rpx; color: #122541; font-size: 53rpx; font-weight: 800; letter-spacing: -2rpx; }
+.subtitle { margin-top: 9rpx; color: #8290a4; font-size: 27rpx; }
+.demo-banner { display: flex; align-items: center; gap: 12rpx; margin-bottom: 30rpx; padding: 19rpx 22rpx; border-radius: 22rpx; color: #3766a5; background: #eaf2ff; font-size: 24rpx; }
+.demo-dot { width: 12rpx; height: 12rpx; border-radius: 50%; background: #347df6; }
+.sport-switch { display: flex; padding: 7rpx; border-radius: 24rpx; background: #e9eef7; }
+.sport-item { flex: 1; padding: 22rpx 0; border-radius: 19rpx; color: #6c7b90; text-align: center; font-size: 28rpx; font-weight: 600; }
+.sport-item.active { color: white; background: #2e7bf5; box-shadow: 0 8rpx 22rpx rgba(46,123,245,.25); }
+.section-head { display: flex; align-items: end; justify-content: space-between; margin: 48rpx 4rpx 22rpx; }
+.section-title { font-size: 34rpx; font-weight: 750; }
+.section-note { margin-top: 5rpx; color: #92a0b1; font-size: 23rpx; }
+.count { color: #6f83a2; font-size: 23rpx; }
+.court-card { overflow: hidden; margin-bottom: 20rpx; padding: 18rpx; border: 1rpx solid #edf0f5; border-radius: 28rpx; background: white; box-shadow: 0 10rpx 30rpx rgba(25,64,115,.055); }
+.card-main { display: flex; align-items: center; }
+.court-art { position: relative; display: flex; align-items: center; justify-content: center; width: 170rpx; height: 154rpx; flex-shrink: 0; overflow: hidden; border-radius: 18rpx; color: white; background: linear-gradient(150deg,#3f92aa,#245f72); }
+.court-art.art-green { background: linear-gradient(150deg,#72bb98,#297a6a); }
+.court-art.art-orange { background: linear-gradient(150deg,#e8a37b,#a96159); }
+.court-art text { position: relative; font-size: 53rpx; z-index: 1; }
+.court-line { position: absolute; width: 140rpx; height: 102rpx; border: 3rpx solid rgba(255,255,255,.6); transform: perspective(160rpx) rotateX(26deg); }
+.center-ring { position: absolute; left: 49rpx; top: 29rpx; width: 40rpx; height: 40rpx; border: 3rpx solid rgba(255,255,255,.65); border-radius: 50%; }
+.card-copy { flex: 1; min-width: 0; padding-left: 20rpx; }
+.card-title { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: #17253b; font-size: 28rpx; font-weight: 750; }
+.place { overflow: hidden; margin-top: 8rpx; white-space: nowrap; text-overflow: ellipsis; color: #91a0b1; font-size: 22rpx; }
+.heat { display: flex; align-items: center; gap: 8rpx; margin-top: 13rpx; color: #496178; font-size: 23rpx; font-weight: 600; }
+.heat-dot { width: 12rpx; height: 12rpx; border-radius: 50%; }
+.heat-demo { padding: 3rpx 9rpx; border-radius: 8rpx; color: #72839a; background: #f1f4f8; font-size: 18rpx; font-weight: 400; }
+.favorite { align-self: flex-start; padding: 2rpx 5rpx; color: #a0aabd; font-size: 44rpx; line-height: 1; }
+.favorite.is-favorite { color: #ffb934; }
+.card-bottom { display: flex; align-items: center; gap: 34rpx; margin-top: 17rpx; padding: 16rpx 8rpx 2rpx; border-top: 1rpx solid #f0f2f6; }
+.metric-value { margin-right: 5rpx; color: #246ce0; font-size: 27rpx; font-weight: 800; }
+.metric-label { color: #8d9bae; font-size: 21rpx; }
+.card-arrow { margin-left: auto; color: #4482e9; font-size: 21rpx; }
+.footnote { padding: 19rpx 9rpx 30rpx; color: #a2afbe; font-size: 21rpx; line-height: 1.65; }

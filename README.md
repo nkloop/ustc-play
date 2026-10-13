@@ -1,6 +1,6 @@
-# USTC Play
+# U-Play · 球场相见
 
-面向中国科学技术大学学生的校园运动社交 Web App 高保真交互原型。界面采用中文，优先适配 iPhone 等手机浏览器。
+独立制作的校园运动社交 Web App 高保真交互原型，非学校官方服务。界面采用中文，优先适配 iPhone 等手机浏览器。
 
 ## 本地运行
 
@@ -53,3 +53,7 @@ src/
 ## GitHub Pages
 
 仓库 `nkloop/ustc-play` 的 `main` 分支推送后，GitHub Actions 会执行类型检查、以 `/ustc-play/` 为静态资源基础路径构建，并发布到 GitHub Pages。仓库设置中的 **Pages → Build and deployment → Source** 需选择 **GitHub Actions**。预期网址为 `https://nkloop.github.io/ustc-play/`；只有 Actions 部署成功且实际浏览器可访问后，才能视为上线。
+
+## 微信小程序体验版
+
+`miniprogram/` 是单独的微信小程序项目，导入和预览方法见 [miniprogram/README.md](miniprogram/README.md)。当前只展示球场查询与本机收藏；数据仍为模拟数据，未提交微信审核。

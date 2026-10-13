@@ -1,0 +1,10 @@
+{
+  "pages": ["pages/index/index", "pages/detail/detail"],
+  "window": {
+    "navigationBarTitleText": "球场相见",
+    "navigationBarBackgroundColor": "#f7f9fd",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f7f9fd"
+  },
+  "style": "v2"
+}
