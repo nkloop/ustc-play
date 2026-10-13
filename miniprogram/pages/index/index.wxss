@@ -1,4 +1,4 @@
-.screen { padding: 42rpx 30rpx 70rpx; }
+.screen { padding: 42rpx 30rpx 190rpx; }
 .heading { margin: 10rpx 4rpx 32rpx; }
 .eyebrow { color: #2d76ef; font-size: 22rpx; font-weight: 700; letter-spacing: 5rpx; }
 .title { margin-top: 13rpx; color: #122541; font-size: 53rpx; font-weight: 800; letter-spacing: -2rpx; }

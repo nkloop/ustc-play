@@ -1,0 +1,19 @@
+<view class="screen">
+  <view class="heading"><view class="eyebrow">EXPLORE</view><view class="title">发现球场</view><view class="subtitle">挑个场地，开启今天的运动时刻。</view></view>
+  <view class="demo-banner"><view class="demo-dot"></view><view>球场热度和人数为模拟数据</view></view>
+  <view class="sport-switch">
+    <view class="sport-item {{sport === 'basketball' ? 'active' : ''}}" data-sport="basketball" bindtap="chooseSport">🏀　篮球</view>
+    <view class="sport-item {{sport === 'football' ? 'active' : ''}}" data-sport="football" bindtap="chooseSport">⚽　足球</view>
+  </view>
+  <view class="section-head"><view><view class="section-title">全部{{sport === 'basketball' ? '篮球' : '足球'}}场</view><view class="section-note">内置场地信息，仅供体验</view></view><view class="count">{{filtered.length}} 个场地</view></view>
+  <view class="court-card" wx:for="{{filtered}}" wx:key="id" data-id="{{item.id}}" bindtap="openDetail">
+    <view class="card-main">
+      <view class="court-art art-{{item.color}}"><view class="court-line"><view class="center-ring"></view></view><text>{{item.emoji}}</text></view>
+      <view class="card-copy"><view class="card-title">{{item.name}}</view><view class="place">{{item.area}} · {{item.walk}}</view><view class="heat"><view class="heat-dot" style="background:{{item.heatColor}}"></view><text>{{item.heatLabel}}</text><text class="heat-demo">模拟</text></view></view>
+      <view class="favorite {{item.favorite ? 'is-favorite' : ''}}" data-id="{{item.id}}" catchtap="toggleFavorite">{{item.favorite ? '★' : '☆'}}</view>
+    </view>
+    <view class="card-bottom"><view><text class="metric-value">{{item.playing}}</text><text class="metric-label">人在打球</text></view><view><text class="metric-value">{{item.going}}</text><text class="metric-label">人准备去</text></view><view class="card-arrow">查看详情　›</view></view>
+  </view>
+  <view class="footnote">独立制作的功能体验版，非学校官方服务。</view>
+</view>
+<bottom-nav active="discover" />

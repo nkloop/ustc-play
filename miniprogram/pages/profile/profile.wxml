@@ -1,0 +1,10 @@
+<view class="screen">
+  <view class="eyebrow">MY SPACE</view><view class="title">我的</view>
+  <view class="profile-card"><view class="avatar">{{initial}}</view><view><view class="name">{{name}}</view><view class="caption">热爱运动的球友</view></view></view>
+  <view class="panel"><view class="panel-title">编辑昵称</view><view class="name-edit"><input value="{{name}}" maxlength="16" bindinput="nameInput" placeholder="输入昵称" /><view bindtap="saveName">保存</view></view></view>
+  <view class="panel"><view class="panel-title">当前运动状态</view><view class="state">{{statusLabel}}</view><view class="caption">仅在本机显示，不与好友同步</view></view>
+  <view class="panel"><view class="panel-title">收藏球场 <text class="count">{{favorites.length}} 个</text></view><view class="favorite-row" wx:for="{{favorites}}" wx:key="id" data-id="{{item.id}}" bindtap="openDetail"><text>{{item.sport === 'basketball' ? '🏀' : '⚽'}}</text><view>{{item.name}}</view><text>›</text></view><view wx:if="{{favorites.length === 0}}" class="empty">还没有收藏球场</view></view>
+  <view class="panel privacy"><view><view class="panel-title">展示运动状态</view><view class="caption">关闭后，本机界面显示为隐身</view></view><switch checked="{{privacy}}" color="#2d79ef" bindchange="togglePrivacy" /></view>
+  <view class="disclaimer">独立制作的单设备体验版，非学校官方服务。球场人数和好友状态均为模拟数据。</view>
+</view>
+<bottom-nav active="profile" />

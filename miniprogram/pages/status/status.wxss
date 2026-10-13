@@ -1,0 +1,19 @@
+.screen { padding: 48rpx 30rpx 190rpx; }
+.eyebrow { color: #3478eb; font-size: 22rpx; font-weight: 700; letter-spacing: 4rpx; }
+.title { margin-top: 12rpx; color: #182943; font-size: 46rpx; font-weight: 800; }
+.subtitle { margin-top: 8rpx; color: #8999ad; font-size: 25rpx; }
+.notice { margin: 30rpx 0 38rpx; padding: 22rpx; border-radius: 20rpx; color: #3766a5; background: #eaf2ff; font-size: 23rpx; }
+.section-title { margin-bottom: 17rpx; color: #1d2e48; font-size: 29rpx; font-weight: 750; }
+.field-title { margin-top: 37rpx; }
+.status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15rpx; }
+.status-card { min-height: 130rpx; padding: 20rpx; border: 2rpx solid #edf1f6; border-radius: 22rpx; color: #3a4c65; background: white; text-align: center; font-size: 24rpx; font-weight: 650; }
+.status-card.selected { border-color: #2e7bf5; background: #eff5ff; color: #206ce1; }
+.status-emoji { margin-bottom: 8rpx; font-size: 40rpx; }
+.sport-switch { display: flex; padding: 7rpx; border-radius: 23rpx; background: #e9eef7; }
+.sport-item { flex: 1; padding: 18rpx; border-radius: 18rpx; color: #6c7b90; text-align: center; font-size: 25rpx; }
+.sport-item.active { color: white; background: #2e7bf5; }
+.court-choices, .duration-choices { display: flex; flex-wrap: wrap; gap: 12rpx; }
+.court-choice, .duration-choice { padding: 16rpx 20rpx; border: 2rpx solid #e6ebf2; border-radius: 16rpx; color: #62758e; background: white; font-size: 23rpx; }
+.court-choice.chosen, .duration-choice.chosen { border-color: #2e7bf5; color: #2e7bf5; background: #eef5ff; }
+.save-button { margin-top: 46rpx; border-radius: 22rpx; color: white; background: #2ab681; font-size: 28rpx; font-weight: 700; }
+.footnote { margin-top: 18rpx; color: #9aa9ba; text-align: center; font-size: 21rpx; }

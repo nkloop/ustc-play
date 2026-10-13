@@ -1,0 +1,14 @@
+<view class="screen">
+  <view class="eyebrow">YOUR CREW</view><view class="title">好友</view>
+  <view class="notice">演示好友资料 · 不代表真实用户</view>
+  <view class="search-box"><text>⌕</text><input value="{{search}}" bindinput="searchInput" placeholder="搜索昵称" /></view>
+  <view class="tabs"><view class="{{tab === 'all' ? 'active' : ''}}" data-tab="all" bindtap="chooseTab">全部</view><view class="{{tab === 'following' ? 'active' : ''}}" data-tab="following" bindtap="chooseTab">我关注的</view></view>
+  <view class="friend-card" wx:for="{{friends}}" wx:key="id">
+    <view class="avatar">{{item.avatar}}</view>
+    <view class="friend-info"><view class="friend-name">{{item.name}}</view><view class="friend-status">{{item.emoji}} {{item.status}}</view><view class="friend-court">{{item.court}} · 模拟</view></view>
+    <view class="follow {{item.followed ? 'followed' : ''}}" data-id="{{item.id}}" bindtap="toggleFollow">{{item.followed ? '已关注' : '+ 关注'}}</view>
+  </view>
+  <view wx:if="{{friends.length === 0}}" class="empty">没有找到符合条件的演示好友</view>
+  <view class="disclaimer">关注操作仅保存在本机，不会通知任何人。</view>
+</view>
+<bottom-nav active="friends" />

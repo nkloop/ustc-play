@@ -1,0 +1,4 @@
+.bottom-nav { position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; display: flex; justify-content: space-around; padding: 10rpx 10rpx calc(12rpx + env(safe-area-inset-bottom)); border-top: 1rpx solid #e9edf3; background: rgba(255,255,255,.98); box-shadow: 0 -8rpx 24rpx rgba(32,55,89,.05); }
+.nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3rpx; color: #8491a7; font-size: 19rpx; }
+.nav-item.active { color: #2d79ef; font-weight: 700; }
+.nav-icon { height: 45rpx; font-size: 39rpx; line-height: 45rpx; font-family: sans-serif; }

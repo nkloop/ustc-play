@@ -39,3 +39,4 @@
 
   <view class="footnote">独立制作的功能体验版，非学校官方服务。场地、热度和人数请以实际情况为准。</view>
 </view>
+<bottom-nav active="home" />

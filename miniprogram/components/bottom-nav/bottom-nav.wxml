@@ -1,0 +1,7 @@
+<view class="bottom-nav">
+  <view class="nav-item {{active === 'home' ? 'active' : ''}}" data-tab="home" bindtap="go"><text class="nav-icon">⌂</text><text>首页</text></view>
+  <view class="nav-item {{active === 'discover' ? 'active' : ''}}" data-tab="discover" bindtap="go"><text class="nav-icon">◎</text><text>发现</text></view>
+  <view class="nav-item {{active === 'status' ? 'active' : ''}}" data-tab="status" bindtap="go"><text class="nav-icon">◉</text><text>我的状态</text></view>
+  <view class="nav-item {{active === 'friends' ? 'active' : ''}}" data-tab="friends" bindtap="go"><text class="nav-icon">♧</text><text>好友</text></view>
+  <view class="nav-item {{active === 'profile' ? 'active' : ''}}" data-tab="profile" bindtap="go"><text class="nav-icon">♙</text><text>我的</text></view>
+</view>

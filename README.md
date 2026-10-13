@@ -56,4 +56,4 @@ src/
 
 ## 微信小程序体验版
 
-`miniprogram/` 是单独的微信小程序项目，导入和预览方法见 [miniprogram/README.md](miniprogram/README.md)。当前只展示球场查询与本机收藏；数据仍为模拟数据，未提交微信审核。
+`miniprogram/` 是单独的微信小程序项目，导入和预览方法见 [miniprogram/README.md](miniprogram/README.md)。五个主要入口用于本机体验；数据仍为模拟数据，未提交微信审核。完整社交功能不能直接以「工具 → 信息查询」类目发布。

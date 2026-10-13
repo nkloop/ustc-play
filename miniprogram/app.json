@@ -1,5 +1,12 @@
 {
-  "pages": ["pages/index/index", "pages/detail/detail"],
+  "pages": [
+    "pages/index/index",
+    "pages/discover/discover",
+    "pages/status/status",
+    "pages/friends/friends",
+    "pages/profile/profile",
+    "pages/detail/detail"
+  ],
   "window": {
     "navigationBarTitleText": "球场相见",
     "navigationBarBackgroundColor": "#f7f9fd",

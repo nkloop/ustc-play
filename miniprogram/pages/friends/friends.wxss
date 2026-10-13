@@ -1,0 +1,19 @@
+.screen { padding: 48rpx 30rpx 190rpx; }
+.eyebrow { color: #3478eb; font-size: 22rpx; font-weight: 700; letter-spacing: 4rpx; }
+.title { margin-top: 12rpx; color: #182943; font-size: 48rpx; font-weight: 800; }
+.notice { margin: 24rpx 0; padding: 18rpx 22rpx; border-radius: 18rpx; color: #3766a5; background: #eaf2ff; font-size: 23rpx; }
+.search-box { display: flex; align-items: center; padding: 0 21rpx; height: 80rpx; border-radius: 20rpx; color: #8899ad; background: #ebeff6; }
+.search-box text { font-size: 36rpx; }
+.search-box input { flex: 1; margin-left: 12rpx; font-size: 26rpx; }
+.tabs { display: flex; padding: 7rpx; margin: 26rpx 0 15rpx; border-radius: 20rpx; background: #e9eef6; }
+.tabs view { flex: 1; padding: 16rpx; border-radius: 16rpx; color: #71819a; text-align: center; font-size: 24rpx; }
+.tabs view.active { color: #2874ea; background: white; font-weight: 700; box-shadow: 0 4rpx 12rpx rgba(30,70,120,.08); }
+.friend-card { display: flex; align-items: center; padding: 22rpx 5rpx; border-bottom: 1rpx solid #e9eef4; }
+.avatar { display: flex; align-items: center; justify-content: center; width: 90rpx; height: 90rpx; flex-shrink: 0; border-radius: 50%; color: #2369cb; background: #d9e9ff; font-size: 31rpx; font-weight: 750; }
+.friend-info { flex: 1; min-width: 0; padding-left: 18rpx; }
+.friend-name { color: #1d2d47; font-size: 26rpx; font-weight: 750; }
+.friend-status { margin-top: 4rpx; color: #4e607b; font-size: 22rpx; }
+.friend-court { margin-top: 4rpx; color: #9daabc; font-size: 19rpx; }
+.follow { padding: 12rpx 18rpx; border-radius: 22rpx; color: white; background: #2d79ed; font-size: 21rpx; }
+.follow.followed { color: #8190a5; background: #ecf0f5; }
+.empty, .disclaimer { margin-top: 28rpx; color: #96a5b8; text-align: center; font-size: 22rpx; }

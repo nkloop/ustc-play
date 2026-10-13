@@ -1,0 +1,15 @@
+<view class="screen">
+  <view class="eyebrow">MY STATUS</view><view class="title">我的运动状态</view><view class="subtitle">记录今天的运动计划</view>
+  <view class="notice">🔒　仅保存在这台设备，其他用户看不到</view>
+  <view class="section-title">选择状态</view>
+  <view class="status-grid"><view class="status-card {{status === item.id ? 'selected' : ''}}" wx:for="{{options}}" wx:key="id" data-id="{{item.id}}" bindtap="chooseStatus"><view class="status-emoji">{{item.emoji}}</view><view>{{item.label}}</view></view></view>
+  <view class="section-title field-title">运动类型</view>
+  <view class="sport-switch"><view class="sport-item {{sport === 'basketball' ? 'active' : ''}}" data-sport="basketball" bindtap="chooseSport">🏀　篮球</view><view class="sport-item {{sport === 'football' ? 'active' : ''}}" data-sport="football" bindtap="chooseSport">⚽　足球</view></view>
+  <view class="section-title field-title">选择球场</view>
+  <view class="court-choices"><view class="court-choice {{courtId === item.id ? 'chosen' : ''}}" wx:for="{{sportCourts}}" wx:key="id" data-id="{{item.id}}" bindtap="chooseCourt">{{item.name}}</view></view>
+  <view class="section-title field-title">有效期</view>
+  <view class="duration-choices"><view class="duration-choice {{duration === item.value ? 'chosen' : ''}}" wx:for="{{durations}}" wx:key="value" data-value="{{item.value}}" bindtap="chooseDuration">{{item.label}}</view></view>
+  <button class="save-button" bindtap="save">保存我的状态</button>
+  <view class="footnote">当前为单设备交互演示，状态不会同步给好友。</view>
+</view>
+<bottom-nav active="status" />
