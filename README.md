@@ -49,3 +49,7 @@ src/
 ```
 
 本项目可直接提交到 GitHub。`node_modules/` 与 `dist/` 已加入 `.gitignore`。
+
+## GitHub Pages
+
+仓库 `nkloop/ustc-play` 的 `main` 分支推送后，GitHub Actions 会执行类型检查、以 `/ustc-play/` 为静态资源基础路径构建，并发布到 GitHub Pages。仓库设置中的 **Pages → Build and deployment → Source** 需选择 **GitHub Actions**。预期网址为 `https://nkloop.github.io/ustc-play/`；只有 Actions 部署成功且实际浏览器可访问后，才能视为上线。

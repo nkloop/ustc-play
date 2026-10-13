@@ -4,3 +4,12 @@ dist
 *.tsbuildinfo
 .DS_Store
 *.local
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+deploy.tar.gz
+.gh-config/
