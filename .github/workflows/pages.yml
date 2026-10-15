@@ -29,6 +29,8 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: npm run build -- --mode github-pages
+        env:
+          VITE_CLOUDBASE_ENV_ID: ${{ vars.VITE_CLOUDBASE_ENV_ID }}
       - uses: actions/configure-pages@v5
         with:
           enablement: true
