@@ -1,14 +1,14 @@
 {
   "user_profiles": {
     "read": "auth != null",
-    "create": "auth != null && doc._id == auth.uid && doc.uid == auth.uid && doc.nicknameKey != null",
-    "update": "auth != null && doc._id == auth.uid && doc.uid == auth.uid",
+    "create": "auth != null && request.data.uid == auth.uid && request.data.nicknameKey != null",
+    "update": "auth != null && doc.uid == auth.uid && request.data.uid == doc.uid",
     "delete": false
   },
   "friend_links": {
     "read": "auth != null && (doc.ownerId == auth.uid || doc.targetId == auth.uid)",
-    "create": "auth != null && doc.ownerId == auth.uid && doc.targetId != auth.uid",
-    "update": "auth != null && doc.ownerId == auth.uid && doc.targetId != auth.uid",
+    "create": "auth != null && request.data.ownerId == auth.uid && request.data.targetId != auth.uid",
+    "update": false,
     "delete": "auth != null && doc.ownerId == auth.uid"
   }
 }

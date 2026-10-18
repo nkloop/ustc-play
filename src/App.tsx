@@ -554,10 +554,11 @@ function App() {
         const candidate = wanted.length >= 2 && wanted.length <= 16 && !wanted.startsWith("@")
           ? wanted : `@${user.id}`;
         try {
-          await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: candidate });
+          await db.collection("user_profiles").add({ uid: user.id, nicknameKey: candidate });
         } catch {
           // 旧账号昵称可能撞名；保留账号，用唯一的编号占位，等用户自行改名。
-          await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: `@${user.id}` });
+          const retry = await db.collection("user_profiles").where({ uid: user.id }).limit(1).get();
+          if (!retry.data.length) await db.collection("user_profiles").add({ uid: user.id, nicknameKey: `@${user.id}` });
         }
       }
       await refreshSocialData();
@@ -601,9 +602,9 @@ function App() {
     if (!user || targetId === user.id) return;
     setSocialBusy(true);
     try {
-      const ref = db.collection("friend_links").doc(`${user.id}_${targetId}`);
-      if (remove) await ref.remove();
-      else await ref.set({ ownerId: user.id, targetId, createdAt: Date.now() });
+      const links = db.collection("friend_links");
+      if (remove) await links.where({ ownerId: "{openid}", targetId }).remove();
+      else await links.add({ ownerId: user.id, targetId, createdAt: Date.now() });
       await refreshSocialData();
       tell(remove ? "已撤回或解除好友" : receivedFrom(targetId) ? "已同意，双方成为好友" : "好友申请已发送");
     } catch (error) { tell(errorText(error, "好友操作失败")); }
@@ -746,7 +747,13 @@ function App() {
     setNameError("");
     setNameSaving(true);
     try {
-      await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: nickname });
+      const profiles = db.collection("user_profiles");
+      const existing = await profiles.where({ uid: user.id }).limit(1).get();
+      if (existing.data.length) {
+        await profiles.where({ uid: "{openid}" }).update({ uid: user.id, nicknameKey: nickname });
+      } else {
+        await profiles.add({ uid: user.id, nicknameKey: nickname });
+      }
       setData((previous) => ({ ...previous, name: nickname }));
       await refreshSocialData();
       setShowNameEdit(false);
