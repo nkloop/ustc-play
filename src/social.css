@@ -1,0 +1,17 @@
+.social-card { margin: 12px 0; padding: 15px; background: #fff; border: 1px solid #edf1f7; border-radius: 16px; box-shadow: 0 5px 18px #3250780d; }
+.social-card h2, .social-feed-title { margin: 0 0 8px; font-size: 16px; color: #172239; }
+.social-card p { margin: 5px 0 10px; color: #8492a7; font-size: 12px; line-height: 1.5; }
+.social-search { display: flex; gap: 8px; }
+.social-search input { flex: 1; min-width: 0; height: 39px; padding: 0 10px; border: 1px solid #dfe7f0; border-radius: 10px; }
+.social-search button, .social-person button { border: 0; border-radius: 10px; background: #2f7df5; color: #fff; padding: 8px 12px; font-size: 12px; font-weight: 750; white-space: nowrap; }
+.social-person { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #edf1f6; font-size: 13px; }
+.social-person:first-of-type { border-top: 0; }
+.social-person span { overflow: hidden; text-overflow: ellipsis; }
+.social-person small, .social-person strong { color: #8492a7; font-size: 11px; white-space: nowrap; }
+.social-person button:disabled, .social-search button:disabled { opacity: .55; cursor: not-allowed; }
+.social-error { color: #c23d3d; font-size: 12px; }
+.social-feed-title { margin: 24px 0 12px; }
+.my-hero { height: auto; min-height: 93px; align-items: flex-start; }
+.my-hero > div:nth-child(2) { min-width: 0; flex: 1; }
+.my-hero code { overflow-wrap: anywhere; font-size: 10px; }
+.my-hero .copy-id { display: inline-block; width: auto; height: auto; margin: 6px 0 0; padding: 6px 9px; color: #2f7df5; font-size: 11px; }

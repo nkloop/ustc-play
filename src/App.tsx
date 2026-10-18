@@ -72,6 +72,18 @@ type PublicStatus = {
   name: string;
   updatedAt: number;
 };
+type UserProfile = { _id?: string; uid: string; nicknameKey: string };
+type FriendLink = { _id?: string; _openid?: string; targetId: string; createdAt: number };
+
+function cleanNickname(value: string): string {
+  return value.normalize("NFKC").trim().toLocaleLowerCase();
+}
+
+function profileName(profile?: UserProfile): string {
+  return profile?.nicknameKey.startsWith("@")
+    ? `球友 #${profile.uid.slice(0, 8)}`
+    : profile?.nicknameKey ?? "球友";
+}
 
 function errorText(error: unknown, fallback: string): string {
   if (error && typeof error === "object") {
@@ -362,7 +374,7 @@ function Nav({ page, setPage }: { page: Page; setPage: (p: Page) => void }) {
     { page: "home", label: "首页", icon: <Home /> },
     { page: "discover", label: "发现", icon: <Compass /> },
     { page: "status", label: "我的状态", icon: <Activity /> },
-    { page: "friends", label: "动态", icon: <Users /> },
+    { page: "friends", label: "好友", icon: <Users /> },
     { page: "profile", label: "我的", icon: <UserRound /> },
   ];
   return (
@@ -397,6 +409,13 @@ function App() {
   const [authError, setAuthError] = useState("");
   const [courtReports, setCourtReports] = useState<CourtReport[]>([]);
   const [publicStatuses, setPublicStatuses] = useState<PublicStatus[]>([]);
+  const [profiles, setProfiles] = useState<UserProfile[]>([]);
+  const [friendLinks, setFriendLinks] = useState<FriendLink[]>([]);
+  const [socialError, setSocialError] = useState("");
+  const [searchName, setSearchName] = useState("");
+  const [searchResult, setSearchResult] = useState<UserProfile | null>(null);
+  const [searchDone, setSearchDone] = useState(false);
+  const [socialBusy, setSocialBusy] = useState(false);
   const [sharedDataError, setSharedDataError] = useState("");
   const [data, setData] = useLocalData();
   const [page, setPage] = useState<Page>("home");
@@ -505,6 +524,89 @@ function App() {
     const timer = window.setInterval(() => setNow(Date.now()), 30_000);
     return () => window.clearInterval(timer);
   }, []);
+  const refreshSocialData = async () => {
+    if (!user) {
+      setProfiles([]);
+      setFriendLinks([]);
+      return;
+    }
+    const [profileResult, sentResult, receivedResult] = await Promise.all([
+      db.collection("user_profiles").limit(100).get(),
+      db.collection("friend_links").where({ _openid: user.id }).get(),
+      db.collection("friend_links").where({ targetId: user.id }).get(),
+    ]);
+    setProfiles((profileResult.data as UserProfile[]).filter(
+      (item) => typeof item.uid === "string" && typeof item.nicknameKey === "string",
+    ));
+    const links = [...sentResult.data, ...receivedResult.data] as FriendLink[];
+    setFriendLinks([...new Map(links.map((link) => [link._id, link])).values()]);
+    setSocialError("");
+  };
+  useEffect(() => {
+    if (!user) return;
+    const initialize = async () => {
+      const existing = await db.collection("user_profiles").doc(user.id).get();
+      const item = (Array.isArray(existing.data) ? existing.data[0] : existing.data) as UserProfile | undefined;
+      if (!item?.uid) {
+        const wanted = cleanNickname(user.user_metadata?.nickName ?? user.user_metadata?.nickname ?? "");
+        const candidate = wanted.length >= 2 && wanted.length <= 16 && !wanted.startsWith("@")
+          ? wanted : `@${user.id}`;
+        try {
+          await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: candidate });
+        } catch {
+          // 旧账号昵称可能撞名；保留账号，用唯一的编号占位，等用户自行改名。
+          await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: `@${user.id}` });
+        }
+      }
+      await refreshSocialData();
+    };
+    initialize().catch((error) => setSocialError(errorText(error, "好友数据读取失败")));
+    const timer = window.setInterval(() => {
+      refreshSocialData().catch((error) => setSocialError(errorText(error, "好友数据读取失败")));
+    }, 30_000);
+    return () => window.clearInterval(timer);
+  }, [user?.id]);
+  const ownProfile = profiles.find((item) => item.uid === user?.id);
+  useEffect(() => {
+    if (ownProfile) setData((previous) => ({ ...previous, name: profileName(ownProfile) }));
+  }, [ownProfile?.nicknameKey]);
+  const sentTo = (uid: string) => friendLinks.some((item) => item._openid === user?.id && item.targetId === uid);
+  const receivedFrom = (uid: string) => friendLinks.some((item) => item._openid === uid && item.targetId === user?.id);
+  const findFriend = async () => {
+    if (!user) { tell("请先登录"); return; }
+    const term = searchName.trim();
+    if (!term) { tell("请输入完整昵称或用户编号"); return; }
+    setSocialBusy(true);
+    try {
+      const match = term === user.id ? ownProfile : profiles.find(
+        (item) => item.uid === term || item.nicknameKey === cleanNickname(term),
+      );
+      if (match) setSearchResult(match);
+      else {
+        const byName = await db.collection("user_profiles").where({ nicknameKey: cleanNickname(term) }).limit(1).get();
+        if (byName.data.length) setSearchResult(byName.data[0] as UserProfile);
+        else {
+          const byId = await db.collection("user_profiles").doc(term).get();
+          const found = (Array.isArray(byId.data) ? byId.data[0] : byId.data) as UserProfile | undefined;
+          setSearchResult(found?.uid ? found : null);
+        }
+      }
+      setSearchDone(true);
+    } catch (error) { setSocialError(errorText(error, "查找失败")); }
+    finally { setSocialBusy(false); }
+  };
+  const changeFriendLink = async (targetId: string, remove = false) => {
+    if (!user || targetId === user.id) return;
+    setSocialBusy(true);
+    try {
+      const ref = db.collection("friend_links").doc(`${user.id}_${targetId}`);
+      if (remove) await ref.remove();
+      else await ref.set({ targetId, createdAt: Date.now() });
+      await refreshSocialData();
+      tell(remove ? "已撤回或解除好友" : receivedFrom(targetId) ? "已同意，双方成为好友" : "好友申请已发送");
+    } catch (error) { tell(errorText(error, "好友操作失败")); }
+    finally { setSocialBusy(false); }
+  };
   const ownStatus = publicStatuses.find((item) => item._openid === user?.id);
   const activeStatus =
     ownStatus?.expiresAt && ownStatus.expiresAt > now
@@ -630,9 +732,9 @@ function App() {
   };
 
   const saveNickname = async () => {
-    const nickname = draftName.trim();
-    if (!nickname) {
-      tell("请输入昵称");
+    const nickname = cleanNickname(draftName);
+    if (nickname.length < 2 || nickname.length > 16 || !/^[\p{L}\p{N}_-]+$/u.test(nickname)) {
+      tell("昵称需为 2–16 个汉字、字母、数字、下划线或短横线");
       return;
     }
     if (!user) {
@@ -641,17 +743,14 @@ function App() {
     }
     setNameSaving(true);
     try {
-      const result = await auth.updateUser({ nickname });
-      if (result.error) throw result.error;
-      setUser((previous) => previous ? {
-        ...previous,
-        user_metadata: { ...previous.user_metadata, nickName: nickname },
-      } : null);
+      await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: nickname });
       setData((previous) => ({ ...previous, name: nickname }));
+      await refreshSocialData();
       setShowNameEdit(false);
-      tell("昵称已同步到云端");
+      tell("昵称已保存，其他人可以用它找到你");
     } catch (error) {
-      tell(errorText(error, "昵称保存失败"));
+      const message = errorText(error, "昵称保存失败");
+      tell(/duplicate|unique|重复|已存在|11000/i.test(message) ? "昵称已被占用，请换一个" : message);
     } finally {
       setNameSaving(false);
     }
@@ -1343,16 +1442,53 @@ function App() {
               <header className="friends-header">
                 <div>
                   <p className="eyebrow">LIVE STATUS</p>
-                  <h1>公开状态</h1>
+                  <h1>好友与动态</h1>
                 </div>
               </header>
+              {user && <>
+                <section className="social-card">
+                  <h2>查找球友</h2>
+                  <p>输入对方的完整昵称或用户编号，不会显示邮箱。</p>
+                  <div className="social-search">
+                    <input value={searchName} onChange={(event) => { setSearchName(event.target.value); setSearchDone(false); }} onKeyDown={(event) => { if (event.key === "Enter") findFriend(); }} placeholder="昵称或用户编号" aria-label="昵称或用户编号" />
+                    <button onClick={findFriend} disabled={socialBusy}>查找</button>
+                  </div>
+                  {searchDone && (searchResult ? <div className="social-person">
+                    <span>{profileName(searchResult)}</span>
+                    {searchResult.uid === user.id ? <small>这是你自己</small> : sentTo(searchResult.uid) && receivedFrom(searchResult.uid) ? <strong>已是好友</strong> : <button disabled={socialBusy || sentTo(searchResult.uid)} onClick={() => changeFriendLink(searchResult.uid)}>{receivedFrom(searchResult.uid) ? "同意申请" : sentTo(searchResult.uid) ? "已发送申请" : "加好友"}</button>}
+                  </div> : <p>没有找到用户。请确认完整昵称，或请对方打开网站后提供用户编号。</p>)}
+                </section>
+                <section className="social-card">
+                  <h2>好友申请</h2>
+                  {friendLinks.filter((link) => link.targetId === user.id && !sentTo(link._openid ?? "")).length ? friendLinks.filter((link) => link.targetId === user.id && !sentTo(link._openid ?? "")).map((link) => <div className="social-person" key={link._id}>
+                    <span>{profileName(profiles.find((profile) => profile.uid === link._openid))}</span>
+                    <button disabled={socialBusy} onClick={() => changeFriendLink(link._openid ?? "")}>同意</button>
+                  </div>) : <p>暂无待处理申请</p>}
+                </section>
+                <section className="social-card">
+                  <h2>我的好友</h2>
+                  {friendLinks.filter((link) => link._openid === user.id && receivedFrom(link.targetId)).length ? friendLinks.filter((link) => link._openid === user.id && receivedFrom(link.targetId)).map((link) => <div className="social-person" key={link._id}>
+                    <span>{profileName(profiles.find((profile) => profile.uid === link.targetId))}</span>
+                    <button disabled={socialBusy} onClick={() => changeFriendLink(link.targetId, true)}>解除</button>
+                  </div>) : <p>暂无好友。双方确认后才会出现在这里。</p>}
+                </section>
+                <section className="social-card">
+                  <h2>我发出的申请</h2>
+                  {friendLinks.filter((link) => link._openid === user.id && !receivedFrom(link.targetId)).length ? friendLinks.filter((link) => link._openid === user.id && !receivedFrom(link.targetId)).map((link) => <div className="social-person" key={link._id}>
+                    <span>{profileName(profiles.find((profile) => profile.uid === link.targetId))}</span>
+                    <button disabled={socialBusy} onClick={() => changeFriendLink(link.targetId, true)}>撤回</button>
+                  </div>) : <p>暂无待同意的申请</p>}
+                </section>
+                {socialError && <p role="alert" className="social-error">好友功能暂不可用：{socialError}</p>}
+              </>}
+              <h2 className="social-feed-title">公开状态</h2>
               <div className="friend-list">
                 {publicStatuses.length ? (
                   publicStatuses.map((item) => (
                     <div className="friend-row" key={item._openid}>
                       <div className="avatar avatar-slate">球</div>
                       <div className="friend-info">
-                        <strong>球友 #{item._openid?.slice(0, 8)}</strong>
+                        <strong>{profiles.some((profile) => profile.uid === item._openid) ? profileName(profiles.find((profile) => profile.uid === item._openid)) : `球友 #${item._openid?.slice(0, 8)}`}{item._openid === user?.id ? "（我）" : ""}</strong>
                         <div className="friend-status">
                           <span>
                             {
@@ -1414,6 +1550,8 @@ function App() {
                 <div>
                   <h2>{data.name}</h2>
                   <p>{user.email}</p>
+                  <p>我的用户编号：<code>{user.id}</code></p>
+                  <button className="copy-id" onClick={() => navigator.clipboard.writeText(user.id).then(() => tell("编号已复制"), () => tell("复制失败，请手动选择编号"))}>复制编号</button>
                 </div>
                 <button
                   onClick={() => {
@@ -1482,7 +1620,7 @@ function App() {
                   <strong>数据说明</strong>
                   <br />
                   球场上报与运动状态来自 CloudBase
-                  共享数据库；昵称保存在 CloudBase 账号中，收藏仍保存在当前浏览器。
+                  共享数据库；昵称和好友关系也保存在 CloudBase，收藏仍保存在当前浏览器。
                 </p>
               </div>
               <button className="primary-button" onClick={signOut}>
