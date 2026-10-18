@@ -72,7 +72,7 @@ type PublicStatus = {
   name: string;
   updatedAt: number;
 };
-type UserProfile = { _id?: string; uid: string; nicknameKey: string };
+type UserProfile = { _id?: string; _openid?: string; uid: string; nicknameKey: string };
 type FriendLink = { _id?: string; ownerId: string; targetId: string; createdAt: number };
 
 function cleanNickname(value: string): string {
@@ -81,8 +81,13 @@ function cleanNickname(value: string): string {
 
 function profileName(profile?: UserProfile): string {
   return profile?.nicknameKey.startsWith("@")
-    ? `球友 #${profile.uid.slice(0, 8)}`
+    ? `球友 #${profile._openid?.slice(0, 8) ?? "未知"}`
     : profile?.nicknameKey ?? "球友";
+}
+
+function isValidProfile(item: UserProfile): boolean {
+  return typeof item._openid === "string" && item.uid === item._openid &&
+    typeof item.nicknameKey === "string";
 }
 
 function errorText(error: unknown, fallback: string): string {
@@ -536,9 +541,7 @@ function App() {
       db.collection("friend_links").where({ ownerId: user.id }).get(),
       db.collection("friend_links").where({ targetId: user.id }).get(),
     ]);
-    const visibleProfiles = (profileResult.data as UserProfile[]).filter(
-      (item) => typeof item.uid === "string" && typeof item.nicknameKey === "string",
-    );
+    const visibleProfiles = (profileResult.data as UserProfile[]).filter(isValidProfile);
     setProfiles(visibleProfiles);
     const links = [...sentResult.data, ...receivedResult.data] as FriendLink[];
     setFriendLinks([...new Map(links.map((link) => [link._id, link])).values()]);
@@ -547,7 +550,7 @@ function App() {
   useEffect(() => {
     if (!user) return;
     const initialize = async () => {
-      const existing = await db.collection("user_profiles").where({ uid: user.id }).limit(1).get();
+      const existing = await db.collection("user_profiles").where({ _openid: "{openid}" }).limit(1).get();
       const item = existing.data[0] as UserProfile | undefined;
       if (!item?.uid) {
         const wanted = cleanNickname(user.user_metadata?.nickName ?? user.user_metadata?.nickname ?? "");
@@ -557,7 +560,7 @@ function App() {
           await db.collection("user_profiles").add({ uid: user.id, nicknameKey: candidate });
         } catch {
           // 旧账号昵称可能撞名；保留账号，用唯一的编号占位，等用户自行改名。
-          const retry = await db.collection("user_profiles").where({ uid: user.id }).limit(1).get();
+          const retry = await db.collection("user_profiles").where({ _openid: "{openid}" }).limit(1).get();
           if (!retry.data.length) await db.collection("user_profiles").add({ uid: user.id, nicknameKey: `@${user.id}` });
         }
       }
@@ -587,11 +590,11 @@ function App() {
       if (match) setSearchResult(match);
       else {
         const byName = await db.collection("user_profiles").where({ nicknameKey: cleanNickname(term) }).limit(1).get();
-        if (byName.data.length) setSearchResult(byName.data[0] as UserProfile);
+        if (byName.data.length && isValidProfile(byName.data[0] as UserProfile)) setSearchResult(byName.data[0] as UserProfile);
         else {
-          const byId = await db.collection("user_profiles").where({ uid: term }).limit(1).get();
+          const byId = await db.collection("user_profiles").where({ _openid: term }).limit(1).get();
           const found = byId.data[0] as UserProfile | undefined;
-          setSearchResult(found?.uid ? found : null);
+          setSearchResult(found && isValidProfile(found) ? found : null);
         }
       }
       setSearchDone(true);
@@ -748,9 +751,9 @@ function App() {
     setNameSaving(true);
     try {
       const profiles = db.collection("user_profiles");
-      const existing = await profiles.where({ uid: user.id }).limit(1).get();
+      const existing = await profiles.where({ _openid: "{openid}" }).limit(1).get();
       if (existing.data.length) {
-        await profiles.where({ _openid: "{openid}" }).update({ uid: user.id, nicknameKey: nickname });
+        await profiles.where({ _openid: "{openid}" }).update({ nicknameKey: nickname });
       } else {
         await profiles.add({ uid: user.id, nicknameKey: nickname });
       }
