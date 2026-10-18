@@ -51,6 +51,10 @@ type CloudUser = {
 type VerifyOtp = (params: {
   token: string;
 }) => Promise<{ data: { user?: CloudUser | null }; error: Error | null }>;
+type FinishPasswordReset = (params: {
+  nonce: string;
+  password: string;
+}) => Promise<{ data: { user?: CloudUser | null }; error: Error | null }>;
 type CourtReport = {
   _openid?: string;
   courtId: string;
@@ -380,13 +384,15 @@ function Nav({ page, setPage }: { page: Page; setPage: (p: Page) => void }) {
 function App() {
   const [user, setUser] = useState<CloudUser | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [authMode, setAuthMode] = useState<"login" | "register" | "verify">(
-    "login",
-  );
+  const [authMode, setAuthMode] = useState<
+    "login" | "register" | "verify" | "reset_request" | "reset_verify"
+  >("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [verifyOtp, setVerifyOtp] = useState<VerifyOtp | null>(null);
+  const [finishPasswordReset, setFinishPasswordReset] = useState<FinishPasswordReset | null>(null);
   const [authBusy, setAuthBusy] = useState(false);
   const [authError, setAuthError] = useState("");
   const [courtReports, setCourtReports] = useState<CourtReport[]>([]);
@@ -543,6 +549,7 @@ function App() {
     setAuthBusy(true);
     try {
       if (authMode === "register") {
+        if (password !== confirmPassword) throw new Error("两次输入的密码不一致");
         const result = await auth.signUp({ email: email.trim(), password });
         if (result.error) throw result.error;
         if (!result.data.verifyOtp)
@@ -564,6 +571,34 @@ function App() {
           name: displayName(signedInUser),
         }));
         tell("注册并登录成功");
+        return;
+      }
+      if (authMode === "reset_request") {
+        const result = await auth.resetPasswordForEmail(email.trim());
+        if (result.error) throw result.error;
+        if (!result.data.updateUser)
+          throw new Error("未收到重置密码步骤，请稍后重试");
+        setFinishPasswordReset(() => result.data.updateUser as FinishPasswordReset);
+        setAuthMode("reset_verify");
+        return;
+      }
+      if (authMode === "reset_verify") {
+        if (password !== confirmPassword) throw new Error("两次输入的密码不一致");
+        if (!finishPasswordReset) throw new Error("验证码会话已失效，请重新发送");
+        const result = await finishPasswordReset({ nonce: otp.trim(), password });
+        if (result.error) throw result.error;
+        if (result.data.user?.id) {
+          setUser(result.data.user);
+          setData((previous) => ({ ...previous, name: displayName(result.data.user!) }));
+          tell("密码已重设并登录");
+        } else {
+          setAuthMode("login");
+          tell("密码已重设，请登录");
+        }
+        setPassword("");
+        setConfirmPassword("");
+        setOtp("");
+        setFinishPasswordReset(null);
         return;
       }
       const result = await auth.signInWithPassword({
@@ -726,8 +761,8 @@ function App() {
         <main className="page" style={{ paddingTop: 56 }}>
           <header className="page-header">
             <p className="eyebrow">USTC PLAY</p>
-            <h1>球场相见</h1>
-            <p>登录后可上报球场情况，并与其他用户共享运动状态。</p>
+            <h1>{authMode.startsWith("reset") ? "重设密码" : "球场相见"}</h1>
+            <p>{authMode.startsWith("reset") ? "邮箱验证通过后即可设置新密码。" : "登录后可上报球场情况，并与其他用户共享运动状态。"}</p>
           </header>
           <form
             onSubmit={authenticate}
@@ -744,7 +779,7 @@ function App() {
               required
               placeholder="邮箱地址"
               value={email}
-              disabled={authMode === "verify"}
+              disabled={authMode === "verify" || authMode === "reset_verify"}
               onChange={(event) => setEmail(event.target.value)}
               style={{
                 height: 46,
@@ -754,11 +789,11 @@ function App() {
                 fontSize: 14,
               }}
             />
-            {authMode !== "verify" && (
+            {(authMode === "login" || authMode === "register" || authMode === "reset_verify") && (
               <input
                 type="password"
                 autoComplete={
-                  authMode === "register" ? "new-password" : "current-password"
+                  authMode === "login" ? "current-password" : "new-password"
                 }
                 required
                 minLength={8}
@@ -774,7 +809,25 @@ function App() {
                 }}
               />
             )}
-            {authMode === "verify" && (
+            {(authMode === "register" || authMode === "reset_verify") && (
+              <input
+                type="password"
+                autoComplete="new-password"
+                required
+                minLength={8}
+                placeholder="再次输入密码"
+                value={confirmPassword}
+                onChange={(event) => setConfirmPassword(event.target.value)}
+                style={{
+                  height: 46,
+                  border: "1px solid #dfe7f0",
+                  borderRadius: 10,
+                  padding: "0 12px",
+                  fontSize: 14,
+                }}
+              />
+            )}
+            {(authMode === "verify" || authMode === "reset_verify") && (
               <input
                 inputMode="numeric"
                 autoComplete="one-time-code"
@@ -810,7 +863,11 @@ function App() {
                   ? "登录"
                   : authMode === "register"
                     ? "发送邮箱验证码"
-                    : "验证并完成注册"}
+                    : authMode === "verify"
+                      ? "验证并完成注册"
+                      : authMode === "reset_request"
+                        ? "发送重置验证码"
+                        : "验证并重设密码"}
             </button>
           </form>
           <p
@@ -825,7 +882,9 @@ function App() {
               ? "还没有账号？"
               : authMode === "register"
                 ? "已有账号？"
-                : "没有收到或验证码已失效？"}{" "}
+                : authMode === "reset_request"
+                  ? "想起密码了？"
+                  : "没有收到或验证码已失效？"}{" "}
             <button
               type="button"
               onClick={() => {
@@ -834,11 +893,18 @@ function App() {
                     ? "register"
                     : authMode === "register"
                       ? "login"
-                      : "register",
+                      : authMode === "verify"
+                        ? "register"
+                        : authMode === "reset_verify"
+                          ? "reset_request"
+                          : "login",
                 );
                 setAuthError("");
                 setOtp("");
                 setVerifyOtp(null);
+                setFinishPasswordReset(null);
+                setPassword("");
+                setConfirmPassword("");
               }}
               style={{
                 background: "none",
@@ -851,16 +917,30 @@ function App() {
                 ? "去注册"
                 : authMode === "register"
                   ? "去登录"
-                  : "重新发送"}
+                  : authMode === "reset_request"
+                    ? "返回登录"
+                    : "重新发送"}
             </button>
           </p>
+          {authMode === "login" && (
+            <p style={{ textAlign: "center", marginTop: 8 }}>
+              <button type="button" onClick={() => {
+                setAuthMode("reset_request");
+                setAuthError("");
+                setPassword("");
+              }} style={{ background: "none", border: 0, color: "#2f7df5", cursor: "pointer" }}>
+                忘记密码？
+              </button>
+            </p>
+          )}
           <div className="prototype-note" style={{ marginTop: 36 }}>
             <Info size={17} />
             <p>
-              <strong>注册说明</strong>
+              <strong>{authMode.startsWith("reset") ? "密码找回说明" : "注册说明"}</strong>
               <br />
-              注册会先向邮箱发送验证码；输入验证码并通过后，账号才真正创建。若无法收到邮件，需要在
-              CloudBase 控制台确认“邮箱验证码登录”已开启并完成邮件服务配置。
+              {authMode.startsWith("reset")
+                ? "重置验证码只发送到你填写的邮箱；请勿把验证码或新密码告诉他人。"
+                : "注册会先向邮箱发送验证码；输入验证码并通过后，账号才真正创建。若无法收到邮件，请检查垃圾邮件并稍后重试。"}
             </p>
           </div>
         </main>
