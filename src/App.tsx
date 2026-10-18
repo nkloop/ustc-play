@@ -432,6 +432,7 @@ function App() {
   const [showNameEdit, setShowNameEdit] = useState(false);
   const [draftName, setDraftName] = useState(data.name);
   const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState("");
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     auth
@@ -535,12 +536,13 @@ function App() {
       db.collection("friend_links").where({ ownerId: user.id }).get(),
       db.collection("friend_links").where({ targetId: user.id }).get(),
     ]);
-    setProfiles((profileResult.data as UserProfile[]).filter(
+    const visibleProfiles = (profileResult.data as UserProfile[]).filter(
       (item) => typeof item.uid === "string" && typeof item.nicknameKey === "string",
-    ));
+    );
+    setProfiles(visibleProfiles);
     const links = [...sentResult.data, ...receivedResult.data] as FriendLink[];
     setFriendLinks([...new Map(links.map((link) => [link._id, link])).values()]);
-    setSocialError("");
+    setSocialError(visibleProfiles.some((item) => item.uid === user.id) ? "" : "尚未建立昵称档案，请到“我的”保存昵称");
   };
   useEffect(() => {
     if (!user) return;
@@ -734,13 +736,14 @@ function App() {
   const saveNickname = async () => {
     const nickname = cleanNickname(draftName);
     if (nickname.length < 2 || nickname.length > 16 || !/^[\p{L}\p{N}_-]+$/u.test(nickname)) {
-      tell("昵称需为 2–16 个汉字、字母、数字、下划线或短横线");
+      setNameError("昵称需为 2–16 个汉字、字母、数字、下划线或短横线");
       return;
     }
     if (!user) {
-      tell("请先登录");
+      setNameError("请先登录");
       return;
     }
+    setNameError("");
     setNameSaving(true);
     try {
       await db.collection("user_profiles").doc(user.id).set({ uid: user.id, nicknameKey: nickname });
@@ -750,7 +753,7 @@ function App() {
       tell("昵称已保存，其他人可以用它找到你");
     } catch (error) {
       const message = errorText(error, "昵称保存失败");
-      tell(/duplicate|unique|重复|已存在|11000/i.test(message) ? "昵称已被占用，请换一个" : message);
+      setNameError(/duplicate|unique|重复|已存在|11000/i.test(message) ? "昵称已被占用，请换一个" : message);
     } finally {
       setNameSaving(false);
     }
@@ -1557,6 +1560,7 @@ function App() {
                 <button
                   onClick={() => {
                     setDraftName(data.name);
+                    setNameError("");
                     setShowNameEdit(true);
                   }}
                   aria-label="编辑昵称"
@@ -1653,6 +1657,8 @@ function App() {
               onChange={(e) => setDraftName(e.target.value)}
               placeholder="输入昵称"
             />
+            <p className="name-hint">昵称会统一处理大小写；不能与其他用户重复。</p>
+            {nameError && <p className="name-error" role="alert">{nameError}</p>}
             <button
               className="primary-button"
               onClick={saveNickname}
