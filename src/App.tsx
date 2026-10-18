@@ -545,8 +545,8 @@ function App() {
   useEffect(() => {
     if (!user) return;
     const initialize = async () => {
-      const existing = await db.collection("user_profiles").doc(user.id).get();
-      const item = (Array.isArray(existing.data) ? existing.data[0] : existing.data) as UserProfile | undefined;
+      const existing = await db.collection("user_profiles").where({ uid: user.id }).limit(1).get();
+      const item = existing.data[0] as UserProfile | undefined;
       if (!item?.uid) {
         const wanted = cleanNickname(user.user_metadata?.nickName ?? user.user_metadata?.nickname ?? "");
         const candidate = wanted.length >= 2 && wanted.length <= 16 && !wanted.startsWith("@")
@@ -586,8 +586,8 @@ function App() {
         const byName = await db.collection("user_profiles").where({ nicknameKey: cleanNickname(term) }).limit(1).get();
         if (byName.data.length) setSearchResult(byName.data[0] as UserProfile);
         else {
-          const byId = await db.collection("user_profiles").doc(term).get();
-          const found = (Array.isArray(byId.data) ? byId.data[0] : byId.data) as UserProfile | undefined;
+          const byId = await db.collection("user_profiles").where({ uid: term }).limit(1).get();
+          const found = byId.data[0] as UserProfile | undefined;
           setSearchResult(found?.uid ? found : null);
         }
       }
@@ -1520,6 +1520,7 @@ function App() {
                           </div>
                         </div>
                       </div>
+                      {user && item._openid && item._openid !== user.id && <button className="follow-button" disabled={socialBusy || sentTo(item._openid)} onClick={() => changeFriendLink(item._openid!)}>{sentTo(item._openid) && receivedFrom(item._openid) ? "好友" : sentTo(item._openid) ? "已申请" : receivedFrom(item._openid) ? "同意" : "加好友"}</button>}
                     </div>
                   ))
                 ) : (
