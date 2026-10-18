@@ -750,7 +750,7 @@ function App() {
       const profiles = db.collection("user_profiles");
       const existing = await profiles.where({ uid: user.id }).limit(1).get();
       if (existing.data.length) {
-        await profiles.where({ uid: "{openid}" }).update({ uid: user.id, nicknameKey: nickname });
+        await profiles.where({ _openid: "{openid}" }).update({ uid: user.id, nicknameKey: nickname });
       } else {
         await profiles.add({ uid: user.id, nicknameKey: nickname });
       }

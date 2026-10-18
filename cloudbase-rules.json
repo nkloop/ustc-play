@@ -2,7 +2,7 @@
   "user_profiles": {
     "read": "auth != null",
     "create": "auth != null && request.data.uid == auth.uid && request.data.nicknameKey != null",
-    "update": "auth != null && doc.uid == auth.uid && request.data.uid == doc.uid",
+    "update": "auth != null && doc._openid == auth.uid && request.data.uid == auth.uid",
     "delete": false
   },
   "friend_links": {
