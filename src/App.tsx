@@ -73,7 +73,7 @@ type PublicStatus = {
   updatedAt: number;
 };
 type UserProfile = { _id?: string; uid: string; nicknameKey: string };
-type FriendLink = { _id?: string; _openid?: string; targetId: string; createdAt: number };
+type FriendLink = { _id?: string; ownerId: string; targetId: string; createdAt: number };
 
 function cleanNickname(value: string): string {
   return value.normalize("NFKC").trim().toLocaleLowerCase();
@@ -532,7 +532,7 @@ function App() {
     }
     const [profileResult, sentResult, receivedResult] = await Promise.all([
       db.collection("user_profiles").limit(100).get(),
-      db.collection("friend_links").where({ _openid: user.id }).get(),
+      db.collection("friend_links").where({ ownerId: user.id }).get(),
       db.collection("friend_links").where({ targetId: user.id }).get(),
     ]);
     setProfiles((profileResult.data as UserProfile[]).filter(
@@ -570,8 +570,8 @@ function App() {
   useEffect(() => {
     if (ownProfile) setData((previous) => ({ ...previous, name: profileName(ownProfile) }));
   }, [ownProfile?.nicknameKey]);
-  const sentTo = (uid: string) => friendLinks.some((item) => item._openid === user?.id && item.targetId === uid);
-  const receivedFrom = (uid: string) => friendLinks.some((item) => item._openid === uid && item.targetId === user?.id);
+  const sentTo = (uid: string) => friendLinks.some((item) => item.ownerId === user?.id && item.targetId === uid);
+  const receivedFrom = (uid: string) => friendLinks.some((item) => item.ownerId === uid && item.targetId === user?.id);
   const findFriend = async () => {
     if (!user) { tell("请先登录"); return; }
     const term = searchName.trim();
@@ -601,7 +601,7 @@ function App() {
     try {
       const ref = db.collection("friend_links").doc(`${user.id}_${targetId}`);
       if (remove) await ref.remove();
-      else await ref.set({ targetId, createdAt: Date.now() });
+      else await ref.set({ ownerId: user.id, targetId, createdAt: Date.now() });
       await refreshSocialData();
       tell(remove ? "已撤回或解除好友" : receivedFrom(targetId) ? "已同意，双方成为好友" : "好友申请已发送");
     } catch (error) { tell(errorText(error, "好友操作失败")); }
@@ -1460,21 +1460,21 @@ function App() {
                 </section>
                 <section className="social-card">
                   <h2>好友申请</h2>
-                  {friendLinks.filter((link) => link.targetId === user.id && !sentTo(link._openid ?? "")).length ? friendLinks.filter((link) => link.targetId === user.id && !sentTo(link._openid ?? "")).map((link) => <div className="social-person" key={link._id}>
-                    <span>{profileName(profiles.find((profile) => profile.uid === link._openid))}</span>
-                    <button disabled={socialBusy} onClick={() => changeFriendLink(link._openid ?? "")}>同意</button>
+                  {friendLinks.filter((link) => link.targetId === user.id && !sentTo(link.ownerId)).length ? friendLinks.filter((link) => link.targetId === user.id && !sentTo(link.ownerId)).map((link) => <div className="social-person" key={link._id}>
+                    <span>{profileName(profiles.find((profile) => profile.uid === link.ownerId))}</span>
+                    <button disabled={socialBusy} onClick={() => changeFriendLink(link.ownerId)}>同意</button>
                   </div>) : <p>暂无待处理申请</p>}
                 </section>
                 <section className="social-card">
                   <h2>我的好友</h2>
-                  {friendLinks.filter((link) => link._openid === user.id && receivedFrom(link.targetId)).length ? friendLinks.filter((link) => link._openid === user.id && receivedFrom(link.targetId)).map((link) => <div className="social-person" key={link._id}>
+                  {friendLinks.filter((link) => link.ownerId === user.id && receivedFrom(link.targetId)).length ? friendLinks.filter((link) => link.ownerId === user.id && receivedFrom(link.targetId)).map((link) => <div className="social-person" key={link._id}>
                     <span>{profileName(profiles.find((profile) => profile.uid === link.targetId))}</span>
                     <button disabled={socialBusy} onClick={() => changeFriendLink(link.targetId, true)}>解除</button>
                   </div>) : <p>暂无好友。双方确认后才会出现在这里。</p>}
                 </section>
                 <section className="social-card">
                   <h2>我发出的申请</h2>
-                  {friendLinks.filter((link) => link._openid === user.id && !receivedFrom(link.targetId)).length ? friendLinks.filter((link) => link._openid === user.id && !receivedFrom(link.targetId)).map((link) => <div className="social-person" key={link._id}>
+                  {friendLinks.filter((link) => link.ownerId === user.id && !receivedFrom(link.targetId)).length ? friendLinks.filter((link) => link.ownerId === user.id && !receivedFrom(link.targetId)).map((link) => <div className="social-person" key={link._id}>
                     <span>{profileName(profiles.find((profile) => profile.uid === link.targetId))}</span>
                     <button disabled={socialBusy} onClick={() => changeFriendLink(link.targetId, true)}>撤回</button>
                   </div>) : <p>暂无待同意的申请</p>}
