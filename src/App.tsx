@@ -550,7 +550,7 @@ function App() {
   useEffect(() => {
     if (!user) return;
     const initialize = async () => {
-      const existing = await db.collection("user_profiles").where({ _openid: "{openid}" }).limit(1).get();
+      const existing = await db.collection("user_profiles").where({ _openid: user.id }).limit(1).get();
       const item = existing.data[0] as UserProfile | undefined;
       if (!item?.uid) {
         const wanted = cleanNickname(user.user_metadata?.nickName ?? user.user_metadata?.nickname ?? "");
@@ -560,7 +560,7 @@ function App() {
           await db.collection("user_profiles").add({ uid: user.id, nicknameKey: candidate });
         } catch {
           // 旧账号昵称可能撞名；保留账号，用唯一的编号占位，等用户自行改名。
-          const retry = await db.collection("user_profiles").where({ _openid: "{openid}" }).limit(1).get();
+          const retry = await db.collection("user_profiles").where({ _openid: user.id }).limit(1).get();
           if (!retry.data.length) await db.collection("user_profiles").add({ uid: user.id, nicknameKey: `@${user.id}` });
         }
       }
@@ -751,9 +751,9 @@ function App() {
     setNameSaving(true);
     try {
       const profiles = db.collection("user_profiles");
-      const existing = await profiles.where({ _openid: "{openid}" }).limit(1).get();
+      const existing = await profiles.where({ _openid: user.id }).limit(1).get();
       if (existing.data.length) {
-        await profiles.where({ _openid: "{openid}" }).update({ nicknameKey: nickname });
+        await profiles.where({ _openid: user.id }).update({ nicknameKey: nickname });
       } else {
         await profiles.add({ uid: user.id, nicknameKey: nickname });
       }
@@ -763,7 +763,7 @@ function App() {
       tell("昵称已保存，其他人可以用它找到你");
     } catch (error) {
       const message = errorText(error, "昵称保存失败");
-      setNameError(/duplicate|unique|重复|已存在|11000/i.test(message) ? "昵称已被占用，请换一个" : message);
+      setNameError(/unique_nickname_key|nicknameKey/i.test(message) ? "昵称已被占用，请换一个" : message);
     } finally {
       setNameSaving(false);
     }
