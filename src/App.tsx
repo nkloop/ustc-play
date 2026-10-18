@@ -43,7 +43,11 @@ type SavedState = {
   expiresAt: number;
 };
 type Storage = { favorites: string[]; state: SavedState; name: string };
-type CloudUser = { id: string; email?: string | null };
+type CloudUser = {
+  id: string;
+  email?: string | null;
+  user_metadata?: { nickName?: string; nickname?: string } | null;
+};
 type VerifyOtp = (params: {
   token: string;
 }) => Promise<{ data: { user?: CloudUser | null }; error: Error | null }>;
@@ -73,6 +77,11 @@ function errorText(error: unknown, fallback: string): string {
       return details.error_description;
   }
   return fallback;
+}
+
+function displayName(user: CloudUser): string {
+  const nickname = user.user_metadata?.nickName ?? user.user_metadata?.nickname;
+  return nickname?.trim() || user.email || "球友";
 }
 
 const initial: Storage = {
@@ -349,7 +358,7 @@ function Nav({ page, setPage }: { page: Page; setPage: (p: Page) => void }) {
     { page: "home", label: "首页", icon: <Home /> },
     { page: "discover", label: "发现", icon: <Compass /> },
     { page: "status", label: "我的状态", icon: <Activity /> },
-    { page: "friends", label: "好友", icon: <Users /> },
+    { page: "friends", label: "动态", icon: <Users /> },
     { page: "profile", label: "我的", icon: <UserRound /> },
   ];
   return (
@@ -397,6 +406,7 @@ function App() {
   const [showAllHome, setShowAllHome] = useState(false);
   const [showNameEdit, setShowNameEdit] = useState(false);
   const [draftName, setDraftName] = useState(data.name);
+  const [nameSaving, setNameSaving] = useState(false);
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     auth
@@ -407,10 +417,11 @@ function App() {
           setUser({
             id: String(current.id),
             email: current.email ? String(current.email) : null,
+            user_metadata: current.user_metadata,
           });
           setData((previous) => ({
             ...previous,
-            name: current.email ? String(current.email) : previous.name,
+            name: displayName(current),
           }));
         }
       })
@@ -503,6 +514,11 @@ function App() {
   };
   const go = (p: Page) => {
     setSelectedCourt(null);
+    if (p === "status" && ownStatus) {
+      setStatus(ownStatus.status);
+      setStatusSport(ownStatus.sport);
+      setStatusCourt(ownStatus.courtId);
+    }
     setPage(p);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -545,7 +561,7 @@ function App() {
         setUser(signedInUser);
         setData((previous) => ({
           ...previous,
-          name: signedInUser.email || email.trim(),
+          name: displayName(signedInUser),
         }));
         tell("注册并登录成功");
         return;
@@ -560,7 +576,7 @@ function App() {
       setUser(signedInUser);
       setData((previous) => ({
         ...previous,
-        name: signedInUser.email || email.trim(),
+        name: displayName(signedInUser),
       }));
       tell("登录成功");
     } catch (error) {
@@ -576,6 +592,34 @@ function App() {
     setData((previous) => ({ ...previous, name: "未登录用户" }));
     setAuthMode("login");
     setPassword("");
+  };
+
+  const saveNickname = async () => {
+    const nickname = draftName.trim();
+    if (!nickname) {
+      tell("请输入昵称");
+      return;
+    }
+    if (!user) {
+      tell("请先登录");
+      return;
+    }
+    setNameSaving(true);
+    try {
+      const result = await auth.updateUser({ nickname });
+      if (result.error) throw result.error;
+      setUser((previous) => previous ? {
+        ...previous,
+        user_metadata: { ...previous.user_metadata, nickName: nickname },
+      } : null);
+      setData((previous) => ({ ...previous, name: nickname }));
+      setShowNameEdit(false);
+      tell("昵称已同步到云端");
+    } catch (error) {
+      tell(errorText(error, "昵称保存失败"));
+    } finally {
+      setNameSaving(false);
+    }
   };
 
   const publishReport = async () => {
@@ -1311,7 +1355,7 @@ function App() {
                   <p>
                     {activeStatus === "hidden"
                       ? "尚未发布或状态已过期"
-                      : `${sportLabel(data.state.sport)} · ${currentCourt?.name ?? "未选择球场"}`}
+                      : `${sportLabel(ownStatus?.sport ?? statusSport)} · ${currentCourt?.name ?? "未选择球场"}`}
                   </p>
                 </div>
                 <button onClick={() => go("status")}>
@@ -1358,7 +1402,7 @@ function App() {
                   <strong>数据说明</strong>
                   <br />
                   球场上报与运动状态来自 CloudBase
-                  共享数据库；昵称与收藏仍保存在当前浏览器。
+                  共享数据库；昵称保存在 CloudBase 账号中，收藏仍保存在当前浏览器。
                 </p>
               </div>
               <button className="primary-button" onClick={signOut}>
@@ -1392,17 +1436,10 @@ function App() {
             />
             <button
               className="primary-button"
-              onClick={() => {
-                if (!draftName.trim()) {
-                  tell("请输入昵称");
-                  return;
-                }
-                setData((d) => ({ ...d, name: draftName.trim() }));
-                setShowNameEdit(false);
-                tell("昵称已保存");
-              }}
+              onClick={saveNickname}
+              disabled={nameSaving}
             >
-              保存昵称
+              {nameSaving ? "保存中…" : "保存昵称"}
             </button>
           </div>
         </div>
