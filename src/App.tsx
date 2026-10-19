@@ -133,10 +133,12 @@ function CourtScene({
   sport,
   variant = "blue",
   large = false,
+  indoor = false,
 }: {
   sport: Sport;
   variant?: string;
   large?: boolean;
+  indoor?: boolean;
 }) {
   const grass =
     variant === "green"
@@ -144,7 +146,7 @@ function CourtScene({
       : variant === "orange"
         ? "#487879"
         : "#456f78";
-  const courtColor = sport === "football" ? "#61a077" : "#cf765d";
+  const courtColor = sport === "football" ? "#61a077" : sport === "badminton" ? "#5c9b83" : "#cf765d";
   return (
     <svg
       className={`court-scene ${large ? "court-scene-large" : ""}`}
@@ -166,24 +168,32 @@ function CourtScene({
           <feGaussianBlur stdDeviation="5" />
         </filter>
       </defs>
-      <rect width="520" height="320" fill={`url(#sky-${variant}-${sport})`} />
-      <path
-        d="M0 128Q100 100 202 128T520 112V215H0Z"
-        fill="#7f9a7d"
-        opacity=".55"
-      />
-      <path d="M0 163Q112 130 208 158T520 146V235H0Z" fill="#315c52" />
-      <g fill="#294f47" opacity=".8">
-        <circle cx="25" cy="131" r="67" />
-        <circle cx="104" cy="122" r="53" />
-        <circle cx="435" cy="126" r="69" />
-        <circle cx="510" cy="100" r="82" />
-      </g>
-      <g fill="#608a62" opacity=".82" filter="url(#blurTree)">
-        <circle cx="62" cy="105" r="60" />
-        <circle cx="176" cy="119" r="39" />
-        <circle cx="406" cy="107" r="58" />
-      </g>
+      {indoor ? (
+        <>
+          <rect width="520" height="320" fill="#d8e5e9" />
+          <path d="M0 0H520V177H0Z" fill="#dce5e4" />
+          <path d="M0 28H520M0 86H520M0 144H520" stroke="#b9cbd0" strokeWidth="5" />
+          <path d="M55 0V165M260 0V165M465 0V165" stroke="#b4c7cc" strokeWidth="7" />
+          <path d="M0 165H520" stroke="#7f9da6" strokeWidth="8" />
+        </>
+      ) : (
+        <>
+          <rect width="520" height="320" fill={`url(#sky-${variant}-${sport})`} />
+          <path d="M0 128Q100 100 202 128T520 112V215H0Z" fill="#7f9a7d" opacity=".55" />
+          <path d="M0 163Q112 130 208 158T520 146V235H0Z" fill="#315c52" />
+          <g fill="#294f47" opacity=".8">
+            <circle cx="25" cy="131" r="67" />
+            <circle cx="104" cy="122" r="53" />
+            <circle cx="435" cy="126" r="69" />
+            <circle cx="510" cy="100" r="82" />
+          </g>
+          <g fill="#608a62" opacity=".82" filter="url(#blurTree)">
+            <circle cx="62" cy="105" r="60" />
+            <circle cx="176" cy="119" r="39" />
+            <circle cx="406" cy="107" r="58" />
+          </g>
+        </>
+      )}
       <path
         d="M0 194L520 177V320H0Z"
         fill={`url(#floor-${variant}-${sport})`}
@@ -220,6 +230,18 @@ function CourtScene({
           />
           <path d="M428 151V161" stroke="#e6ded4" strokeWidth="2" />
         </>
+      ) : sport === "badminton" ? (
+        <>
+          <path d="M36 220L260 192L506 212L520 310L80 320Z" fill={courtColor} />
+          <path
+            d="M55 229L261 205L491 224L501 301L95 312ZM278 207L293 309M76 259L495 257M107 310L112 246M468 300L476 241"
+            stroke="#e8f5ed"
+            strokeWidth="3"
+            fill="none"
+          />
+          <path d="M52 244L504 261M52 244V287M504 261V306" stroke="#edf2ed" strokeWidth="4" fill="none" />
+          <path d="M53 248L502 264M52 254L503 270M52 261L504 277" stroke="#edf2ed" strokeWidth="1" opacity=".7" />
+        </>
       ) : (
         <>
           <path d="M36 220L260 192L506 212L520 310L80 320Z" fill={courtColor} />
@@ -237,10 +259,14 @@ function CourtScene({
           />
         </>
       )}
-      <g fill="#173a41" opacity=".85">
-        <path d="M34 143h3v68h-3zM219 148h3v61h-3zM362 138h3v67h-3zM493 125h3v87h-3z" />
-      </g>
-      <circle cx="352" cy="24" r="31" fill="#fff6dc" opacity=".32" />
+      {!indoor && (
+        <>
+          <g fill="#173a41" opacity=".85">
+            <path d="M34 143h3v68h-3zM219 148h3v61h-3zM362 138h3v67h-3zM493 125h3v87h-3z" />
+          </g>
+          <circle cx="352" cy="24" r="31" fill="#fff6dc" opacity=".32" />
+        </>
+      )}
     </svg>
   );
 }
@@ -254,14 +280,14 @@ function SportSwitch({
 }) {
   return (
     <div className="sport-switch" role="group" aria-label="运动类型">
-      {(["basketball", "football"] as Sport[]).map((s) => (
+      {(["basketball", "football", "badminton"] as Sport[]).map((s) => (
         <button
           key={s}
           className={value === s ? "active" : ""}
           onClick={() => onChange(s)}
         >
           <span className="sport-emoji">
-            {s === "basketball" ? "🏀" : "⚽"}
+            {s === "basketball" ? "🏀" : s === "football" ? "⚽" : "🏸"}
           </span>
           {sportLabel(s)}
         </button>
@@ -319,7 +345,7 @@ function CourtCard({
     <article className="court-card" onClick={onOpen}>
       <div className="court-card-top">
         <div className="court-thumb">
-          <CourtScene sport={court.sport} variant={court.color} />
+          <CourtScene sport={court.sport} variant={court.color} indoor={court.facilities.includes("室内场地")} />
         </div>
         <div className="court-card-info">
           <div className="card-title-row">
@@ -1105,6 +1131,7 @@ function App() {
                 sport={selectedCourt.sport}
                 variant={selectedCourt.color}
                 large
+                indoor={selectedCourt.facilities.includes("室内场地")}
               />
               <span className="scene-count">场地示意图</span>
             </div>
@@ -1116,9 +1143,6 @@ function App() {
                   </p>
                   <h1>{selectedCourt.name}</h1>
                 </div>
-                <span className="distance-pill">
-                  步行约{selectedCourt.walk}分钟
-                </span>
               </div>
               <p className="muted detail-location">
                 <MapPin size={15} />
@@ -1295,7 +1319,7 @@ function App() {
                   <h2>
                     {sport === "basketball"
                       ? "查看东区篮球场"
-                      : "查看东区足球场"}
+                      : sport === "football" ? "查看东区足球场" : "查看中区羽毛球场"}
                   </h2>
                   <p>没有上报时会明确显示暂无数据</p>
                   <button
@@ -1304,7 +1328,7 @@ function App() {
                         liveCourts.find(
                           (c) =>
                             c.id ===
-                            (sport === "basketball" ? "east-b" : "east-f"),
+                            (sport === "basketball" ? "east-b" : sport === "football" ? "east-f" : "middle-badminton"),
                         )!,
                       )
                     }
@@ -1313,7 +1337,7 @@ function App() {
                   </button>
                 </div>
                 <div className="spotlight-ball">
-                  {sport === "basketball" ? "🏀" : "⚽"}
+                  {sport === "basketball" ? "🏀" : sport === "football" ? "⚽" : "🏸"}
                 </div>
               </div>
               <div className="section-title discover-title">
@@ -1613,7 +1637,7 @@ function App() {
                       .map((c) => (
                         <button key={c.id} onClick={() => openCourt(c)}>
                           <span className="profile-list-icon">
-                            {c.sport === "basketball" ? "🏀" : "⚽"}
+                            {c.sport === "basketball" ? "🏀" : c.sport === "football" ? "⚽" : "🏸"}
                           </span>
                           <span>
                             <strong>{c.name}</strong>

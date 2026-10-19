@@ -1,4 +1,4 @@
-export type Sport = "basketball" | "football";
+export type Sport = "basketball" | "football" | "badminton";
 export type Heat = 0 | 1 | 2 | 3 | 4;
 export type Condition = "join" | "full" | "match" | "unknown";
 export type Status =
@@ -14,7 +14,6 @@ export interface Court {
   name: string;
   sport: Sport;
   area: string;
-  walk: number;
   heat: Heat;
   reports: number;
   minutes: number;
@@ -26,13 +25,16 @@ export interface Court {
   facilities: string[];
 }
 
+// 场地位置参考：中国科大校园地图 https://weixine.ustc.edu.cn/ustcqy/mobile/newMappro/
+// 体育教学中心场地介绍 https://www.tj.ustc.edu.cn/1441/list.htm
+// 西区两处球场具体方位参考校内社区记录 https://ustcforum.com/d/405/3
+// 旧 west-b 上报未区分两处西区球场，不归入任一新场地，避免误导。
 export const courts: Court[] = [
   {
     id: "east-b",
     name: "东区篮球场",
     sport: "basketball",
     area: "东区 · 体育馆附近",
-    walk: 3,
     heat: 0,
     reports: 0,
     minutes: 0,
@@ -44,11 +46,10 @@ export const courts: Court[] = [
     facilities: ["室外场地", "夜间照明", "饮水点附近"],
   },
   {
-    id: "west-b",
-    name: "西区篮球场",
+    id: "west-track-b",
+    name: "西区操场篮球场",
     sport: "basketball",
-    area: "西区 · 学生活动中心旁",
-    walk: 8,
+    area: "西区 · 操场南侧",
     heat: 0,
     reports: 0,
     minutes: 0,
@@ -56,15 +57,29 @@ export const courts: Court[] = [
     going: 0,
     maybe: 0,
     color: "green",
-    description: "空间宽敞，适合约上球友来一场半场对抗。",
-    facilities: ["室外场地", "多个篮筐"],
+    description: "位于西区操场南侧。请与同步辐射实验室东侧的篮球场区分上报。",
+    facilities: ["室外场地", "西区操场南侧"],
+  },
+  {
+    id: "west-synchrotron-b",
+    name: "西区同步辐射篮球场",
+    sport: "basketball",
+    area: "西区 · 国家同步辐射实验室东侧",
+    heat: 0,
+    reports: 0,
+    minutes: 0,
+    playing: 0,
+    going: 0,
+    maybe: 0,
+    color: "blue",
+    description: "位于国家同步辐射实验室东侧，与西区操场南侧篮球场是两处不同场地。",
+    facilities: ["室外场地", "同步辐射实验室东侧"],
   },
   {
     id: "middle-b",
     name: "中区篮球场",
     sport: "basketball",
-    area: "中区 · 教学楼附近",
-    walk: 6,
+    area: "中区 · 综合体育馆旁",
     heat: 0,
     reports: 0,
     minutes: 0,
@@ -72,15 +87,74 @@ export const courts: Court[] = [
     going: 0,
     maybe: 0,
     color: "orange",
-    description: "课间也能来投几个球的便利球场。",
-    facilities: ["室外场地", "教学区附近"],
+    description: "位于中区综合体育馆旁的室外篮球场。",
+    facilities: ["室外场地", "综合体育馆旁"],
+  },
+  {
+    id: "middle-indoor-b",
+    name: "中区室内篮球馆",
+    sport: "basketball",
+    area: "中区 · 体育中心篮球训练馆",
+    heat: 0,
+    reports: 0,
+    minutes: 0,
+    playing: 0,
+    going: 0,
+    maybe: 0,
+    color: "orange",
+    description: "中区体育中心内的室内篮球场地；开放及预约情况以学校通知为准。",
+    facilities: ["室内场地", "体育中心"],
+  },
+  {
+    id: "middle-badminton",
+    name: "中区综合体育馆羽毛球场",
+    sport: "badminton",
+    area: "中区 · 综合体育馆内",
+    heat: 0,
+    reports: 0,
+    minutes: 0,
+    playing: 0,
+    going: 0,
+    maybe: 0,
+    color: "orange",
+    description: "位于中区综合体育馆内；开放及预约情况以学校通知为准。",
+    facilities: ["室内场地", "综合体育馆"],
+  },
+  {
+    id: "east-badminton",
+    name: "东区羽毛球馆",
+    sport: "badminton",
+    area: "东区 · 体育教学楼旁",
+    heat: 0,
+    reports: 0,
+    minutes: 0,
+    playing: 0,
+    going: 0,
+    maybe: 0,
+    color: "blue",
+    description: "位于东区体育教学楼旁；开放情况以学校通知为准。",
+    facilities: ["室内场地", "体育教学楼旁"],
+  },
+  {
+    id: "west-badminton",
+    name: "西区气膜馆羽毛球场",
+    sport: "badminton",
+    area: "西区 · 研究生公寓旁气膜馆",
+    heat: 0,
+    reports: 0,
+    minutes: 0,
+    playing: 0,
+    going: 0,
+    maybe: 0,
+    color: "green",
+    description: "位于西区研究生公寓旁的气膜馆内；开放情况以学校通知为准。",
+    facilities: ["室内场地", "气膜馆"],
   },
   {
     id: "east-f",
     name: "东区足球场",
     sport: "football",
     area: "东区 · 田径场内",
-    walk: 5,
     heat: 0,
     reports: 0,
     minutes: 0,
@@ -96,7 +170,6 @@ export const courts: Court[] = [
     name: "西区足球场",
     sport: "football",
     area: "西区 · 体育中心旁",
-    walk: 11,
     heat: 0,
     reports: 0,
     minutes: 0,
@@ -112,7 +185,6 @@ export const courts: Court[] = [
     name: "北区足球场",
     sport: "football",
     area: "北区 · 宿舍区附近",
-    walk: 9,
     heat: 0,
     reports: 0,
     minutes: 0,
@@ -195,5 +267,5 @@ export function statusLabel(status: Status) {
   return statusOptions.find((s) => s.id === status)!.label;
 }
 export function sportLabel(sport: Sport) {
-  return sport === "basketball" ? "篮球" : "足球";
+  return sport === "basketball" ? "篮球" : sport === "football" ? "足球" : "羽毛球";
 }
